@@ -23,6 +23,7 @@ class Tutor(object):
         
         # fill in basic fields:
         for line in self.file_as_list[:timetable_offset - 2]:  # these lines should contain one entry per line
+            line = [entry for entry in line if not entry==""]  # in case someone inserts blank columns
             key = line[0].split(" ")[0]  # Simplify names of keys to first word
             if key in keys and len(line) > 1:
                 if key in ["Monatsstunden", "C-Kenntnisse", "Unsicherheit"]:
@@ -80,7 +81,7 @@ def number_of_nonzero_entries(list_of_lists):
 if __name__ == "__main__":
     # find tutor files:
     import os
-    files = ["../csv/tutoren/" + filename for filename in os.listdir("../csv/tutoren/") if filename.endswith(".csv")]
+    files = ["../csv/tutoren/antworten/" + filename for filename in os.listdir("../csv/tutoren/antworten/") if filename.endswith(".csv")]
     
     max_word_width = max([len(word) for word in keys]) + 2  # Used for output formatting
     for filename in files:
@@ -95,6 +96,7 @@ if __name__ == "__main__":
                 print line
         except ValueError, e:
             print "Fehler bei Tutor {} {}:\n{}".format(tutor.data["Vorname"], tutor.data["Name"], e)
+            print "Datei:\t{}".format(filename)
             print "Kontakt:"
             print tutor.data["E-Mail"]
             if not tutor.data["Mobil"] is None:
