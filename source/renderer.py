@@ -9,8 +9,10 @@
 """ """
 import sys
 import os
+import tempfile
 import argparse
 import re
+import subprocess
 from mako.template import Template
 DEBUG=False
 
@@ -32,9 +34,19 @@ def make_template(inp, outp, model):
             model=model
         ))
 
+def compile_pdf(filepath, output_path):
+    temp_dir = tempfile.mkdtemp()
+    filename = os.path.basename(filepath) 
+    subprocess.check_call([
+        "pdflatex", filepath, "-halt-on-error",
+        "-output-directory", temp_dir])
+    os.rename(temp_dir)
+    os.rmdir(temp_dir)
+
 
 def main(inp, outp):
     make_template(inp, outp, (1,2,3))
+    compile_pdf(outp)
 
 def cli():
     """ Command line interface """
