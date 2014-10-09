@@ -16,6 +16,8 @@ import subprocess
 import tempfile
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
 DEBUG=True
 INFO=True
@@ -40,7 +42,7 @@ class Mailer(object):
             smtpObj.set_debuglevel(True)
             smtpObj.connect(host=self._host)
             smtpObj.login(author.login, author.password)
-            smtpObj.sendmail(author.mail, receivers, msg)
+            smtpObj.sendmail(author.mail, receivers, msg.as_string())
             print "Successfully sent email"
         except smtplib.SMTPException:
             print "Error: unable to send email"
@@ -55,8 +57,16 @@ class Message(object):
         self.msg["To"] = "{} <{}>".format(person.name, person.mail)
         self.msg["From"] = "{} <{}>".format(author.name, author.mail)
         self.msg["Subject"] = templ.msg_content.format(person)
-        self.msg.preamble = templ.msg_content.format(person)
-        self.msg.attach(MIMEText(self._render_pdf(templ)))
+        self.msg.attach(MIMEText(templ.msg_content.format(person)))
+
+        part = MIMEBase("application", "octet-stream")
+        part.set_payload(self._render_pdf(templ))
+        encoders.encode_base64(part)
+        self.msg.add_header('Content-Disposition', 'attachment',
+            filename=templ.mime_filename.format(person=person)
+        )
+        print(templ.mime_filename.format(person=person))
+        self.msg.attach(part)
 
     def _render_pdf(self, templ):
         temp_dir = tempfile.mkdtemp()

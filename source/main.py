@@ -13,7 +13,7 @@ import logic
 from datetime import date, time
 
 def main():
-    author = model.Author("Niklas Semmler", "nsemmler@inet.tu-berlin.de", "nsemmler")
+    author = model.Author("nsemmler", "Niklas Semmler", "nsemmler@inet.tu-berlin.de")
     person = model.Person("Erika Mustermann", "metaswirl@gmail.com", "Tutor", "60")
     schedule_entry = model.ScheduleEntry(
         date(2014, 10, 9), time(10, 15), time(11, 45),
@@ -25,7 +25,7 @@ def main():
     templ.compile(author, person, schedule)
     receivers, msg = logic.Message(author, person, templ).compile()
     mailer = logic.Mailer("mail.inet.tu-berlin.de", 5)
-    #mailer.mailto(author, msg, receivers)
+    mailer.mailto(author, msg, receivers)
 
 if __name__ == '__main__':
     main()
