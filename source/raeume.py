@@ -9,7 +9,7 @@ STARTING_DAY = 1  # Class starts on a Tuesday
 class Room(object):
     def __init__(self, name):
         self.name = name
-        self.booked = [[False]*len(time_slots) for day in weekdays[STARTING_DAY:] + weekdays]
+        self.booked = [[False]*len(time_slots) for day in 2 * weekdays]
     
     def is_booked(self, week, day, time):
         """
@@ -66,7 +66,7 @@ def read_rooms_from_file(file_name):
     day_finder = get_weekday_finder(file_as_list)
     timetable_offset = 2  # one blank line after weekday line
     
-    day_index = 0
+    day_index = STARTING_DAY
     for line_index, day in day_finder:  # Iterate over all the weekday names found by the weekday finder
         for time_index, time in enumerate(time_slots):  # For each weekday found, iterate over the time slots
             booked_list = map(int, file_as_list[line_index + timetable_offset + time_index][1:])
@@ -120,36 +120,34 @@ def read_file_to_list(filename):
         file_as_list = [[entry.strip() for entry in line] for line in file_as_list]
         return file_as_list
         
-def calculate_day_index(week, day, first_week_offset = STARTING_DAY):
+def calculate_day_index(week, day):
     """
     Given the week (either 1 or 2) and the name of the weekday, this method calculates the corresponding index in the 
     booked array.
-    >>> calculate_day_index(1, "Dienstag", first_week_offset = 1)
-    0
-    >>> calculate_day_index(2, "Montag", first_week_offset = 0)
+    >>> calculate_day_index(1, "Dienstag")
+    1
+    >>> calculate_day_index(2, "Montag")
     5
     """
     day_index = weekdays.index(day)
     if week == 2:
-        day_index += len(weekdays) - first_week_offset
-    else:
-        day_index -= first_week_offset
+        day_index += len(weekdays) 
     return day_index
 
-def get_week_and_day(day_index, first_week_offset = STARTING_DAY):
+def get_week_and_day(day_index):
     """
     Given the number of days since Tuesday in week one, this method calculates the corresponding week and weekday in the 
     booked array and returns them as a (int, string) tuple.
-    >>> get_week_and_day(0, first_week_offset=1)
-    (1, 'Dienstag')
-    >>> get_week_and_day(4, first_week_offset=1)
-    (2, 'Montag')
+    >>> get_week_and_day(0)
+    (1, 'Montag')
+    >>> get_week_and_day(4)
+    (1, 'Freitag')
     """
-    if day_index >= len(weekdays) - first_week_offset:
+    if day_index >= len(weekdays):
         week = 2
     else:
         week = 1
-    return week, weekdays[(day_index + first_week_offset) % len(weekdays)]
+    return week, weekdays[(day_index) % len(weekdays)]
 
 
 if __name__=="__main__":   
